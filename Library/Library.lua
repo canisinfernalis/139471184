@@ -5895,8 +5895,14 @@ do
             local DisabledValues = type(Dropdown.DisabledValues) == "table" and Dropdown.DisabledValues or {}
 
             for Button, _ in DropdownButtons do
-                if Button and typeof(Button) == "Instance" and Button.Parent then
-                    Button:Destroy()
+                if typeof(Button) == "Instance" then
+                    if Button.Parent then
+                        Button:Destroy()
+                    end
+                elseif type(Button) == "table" and type(Button.Destroy) == "function" then
+                    pcall(function()
+                        Button:Destroy()
+                    end)
                 end
             end
             table.clear(DropdownButtons)
