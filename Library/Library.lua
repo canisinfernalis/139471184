@@ -5678,12 +5678,12 @@ do
         end
 
         MenuTable = Library:AddContextMenu(
-            Display,
+            Holder,
             function()
-                return UDim2.fromOffset(Display.AbsoluteSize.X / Library.DPIScale, 0)
+                return UDim2.new(1, 0, 0, 0)
             end,
             function()
-                return { 0.5, Display.AbsoluteSize.Y + 1.5 }
+                return { 0, Holder.Size.Y.Offset + 1 }
             end,
             2,
             function(Active: boolean)
@@ -5704,7 +5704,7 @@ do
             local Y = math.clamp((Count or #Dropdown.Values) * 21, 0, Info.MaxVisibleDropdownItems * 21)
 
             MenuTable:SetSize(function()
-                return UDim2.fromOffset(Display.AbsoluteSize.X / Library.DPIScale, Y)
+                return UDim2.new(1, 0, 0, Y)
             end)
         end
 
