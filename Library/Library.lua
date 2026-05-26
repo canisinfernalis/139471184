@@ -9928,6 +9928,15 @@ function Library:CreateWindow(WindowInfo)
             DependencyBoxes = {},
         }
 
+        local function RefreshDialogHeader()
+            local hasTitle = type(TitleLabel.Text) == "string" and TitleLabel.Text ~= ""
+            local hasDescription = type(DescriptionLabel.Text) == "string" and DescriptionLabel.Text ~= ""
+
+            TitleRow.Visible = hasTitle
+            DescriptionLabel.Visible = hasDescription
+            HeaderContainer.Visible = hasTitle or hasDescription
+        end
+
         function Dialog:Resize()
             local MaxWidth = MainFrame.AbsoluteSize.X * 0.75
             local MinWidth = 400
@@ -9954,6 +9963,7 @@ function Library:CreateWindow(WindowInfo)
 
             local _DescX, DescY = Library:GetTextBounds(DescriptionLabel.Text, Library.Scheme.Font, 14, TargetWidth - 30)
             DescriptionLabel.Size = UDim2.new(1, 0, 0, DescY)
+            RefreshDialogHeader()
 
             local HasElements = false
             for _, v in DialogContainer:GetChildren() do
@@ -9969,12 +9979,12 @@ function Library:CreateWindow(WindowInfo)
         end
 
         function Dialog:SetTitle(Title)
-            TitleLabel.Text = Title
+            TitleLabel.Text = Title or ""
             Dialog:Resize()
         end
 
         function Dialog:SetDescription(Description)
-            DescriptionLabel.Text = Description
+            DescriptionLabel.Text = Description or ""
             Dialog:Resize()
         end
 
