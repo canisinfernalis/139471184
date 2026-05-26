@@ -2784,9 +2784,11 @@ function Library:AddContextMenu(
     Offset,
     List,
     ActiveCallback,
-    IgnoreCornerRadius
+    IgnoreCornerRadius,
+    MenuZIndex
 )
     local Menu
+    local ResolvedMenuZIndex = tonumber(MenuZIndex) or 100
     if List then
         Menu = New("ScrollingFrame", {
             AutomaticCanvasSize = List == 2 and Enum.AutomaticSize.Y or Enum.AutomaticSize.None,
@@ -2799,7 +2801,7 @@ function Library:AddContextMenu(
             Size = typeof(Size) == "function" and Size() or Size,
             TopImage = "rbxasset://textures/ui/Scroll/scroll-middle.png",
             Visible = false,
-            ZIndex = 100,
+            ZIndex = ResolvedMenuZIndex,
             Parent = Holder,
         })
     else
@@ -2807,7 +2809,7 @@ function Library:AddContextMenu(
             BackgroundColor3 = "BackgroundColor",
             Size = typeof(Size) == "function" and Size() or Size,
             Visible = false,
-            ZIndex = 100,
+            ZIndex = ResolvedMenuZIndex,
             Parent = Holder,
         })
     end
@@ -5542,6 +5544,8 @@ do
 
         local Groupbox = self
         local Container = Groupbox.Container
+        local InDialog = Groupbox.IsDialog == true
+        local DialogZIndex = InDialog and ((type(Container) == "Instance" and Container.ZIndex) or 9002) or nil
 
         if Info.SpecialType == "Player" then
             Info.Values = GetPlayers(Info.ExcludeLocalPlayer)
@@ -5595,7 +5599,7 @@ do
             TextSize = 14,
             TextXAlignment = Enum.TextXAlignment.Left,
             Visible = hasInitialLabel,
-            ZIndex = 3,
+            ZIndex = DialogZIndex or 3,
             Parent = Holder,
         })
 
@@ -5608,7 +5612,7 @@ do
             Text = "---",
             TextSize = 14,
             TextXAlignment = Enum.TextXAlignment.Left,
-            ZIndex = 2,
+            ZIndex = DialogZIndex or 2,
             Parent = Holder,
         })
 
@@ -5644,6 +5648,7 @@ do
             ImageTransparency = 0.5,
             Position = UDim2.fromScale(1, 0.5),
             Size = UDim2.fromOffset(16, 16),
+            ZIndex = DialogZIndex or Display.ZIndex,
             Parent = Display,
         })
 
@@ -5663,6 +5668,7 @@ do
                 TextSize = 14,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 Visible = false,
+                ZIndex = DialogZIndex or Display.ZIndex,
                 Parent = Display,
             })
             New("UIPadding", {
@@ -5672,12 +5678,12 @@ do
         end
 
         MenuTable = Library:AddContextMenu(
-            Holder,
+            Display,
             function()
-                return UDim2.new(1, 0, 0, 0)
+                return UDim2.fromOffset(Display.AbsoluteSize.X / Library.DPIScale, 0)
             end,
             function()
-                return { 0, Holder.Size.Y.Offset + 1 }
+                return { 0.5, Display.AbsoluteSize.Y + 1.5 }
             end,
             2,
             function(Active: boolean)
@@ -5689,7 +5695,8 @@ do
                     SearchBox.Visible = Active
                 end
             end,
-            true
+            true,
+            InDialog and 9010 or nil
         )
         Dropdown.Menu = MenuTable
 
@@ -5697,7 +5704,7 @@ do
             local Y = math.clamp((Count or #Dropdown.Values) * 21, 0, Info.MaxVisibleDropdownItems * 21)
 
             MenuTable:SetSize(function()
-                return UDim2.new(1, 0, 0, Y)
+                return UDim2.fromOffset(Display.AbsoluteSize.X / Library.DPIScale, Y)
             end)
         end
 
@@ -9917,6 +9924,8 @@ function Library:CreateWindow(WindowInfo)
             Visible = DialogVisible,
             Destroyed = false,
             FooterButtons = FooterButtonsList,
+            IsDialog = true,
+            DependencyBoxes = {},
         }
 
         function Dialog:Resize()
