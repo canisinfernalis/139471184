@@ -10902,6 +10902,24 @@ function Library:ReplayControlSnapshot(snapshot, replayOptions)
     end)
 end
 
+if not Library._BaseUtilityBootstrapStarted then
+    Library._BaseUtilityBootstrapStarted = true
+
+    task.spawn(function()
+        Library:RunBootstrapSection("AntiAFKBootstrap", function()
+            Library:StartAntiAFK()
+        end, false)
+    end)
+
+    task.spawn(function()
+        Library:RunBootstrapSection("PauseBypassBootstrap", function()
+            Library:StartPauseBypass({
+                Interval = 2,
+            })
+        end, false)
+    end)
+end
+
 getgenv().Library = Library
 getgenv().MidgardLibrary = Library
 return Library
